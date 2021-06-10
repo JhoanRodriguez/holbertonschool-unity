@@ -4,19 +4,19 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-	private float horizontalMove;
-	private float verticalMove;
 	public CharacterController player;
-
-	private Vector3 playerInput;
-
 	public float jumpForce = 3;
 	public float gravity = 9.8f;
 	public float fallVelocity = 5f;
 	public float speed = 5f;
+	private float horizontalMove;
+	private float verticalMove;
+	private Vector3 playerInput;
+	private Transform falling;
 	void Start()
 	{
 		player = GetComponent<CharacterController>();
+		falling = GetComponent<Transform>();
 	}
 
 	void Update()
@@ -26,12 +26,16 @@ public class PlayerController : MonoBehaviour
 
 		playerInput = new Vector3(horizontalMove, 0, verticalMove);
 		playerInput = Vector3.ClampMagnitude(playerInput, 1);
+		playerInput = transform.TransformDirection(playerInput);
 
 
 		SetGravity();
 		PlayerSkills();
 
+
 		player.Move(playerInput * speed * Time.deltaTime);
+
+		IsFalling();
 
 	}
 
@@ -50,12 +54,17 @@ public class PlayerController : MonoBehaviour
 
 	}
 
-	public void PlayerSkills()
+	void PlayerSkills()
 	{
 		if (player.isGrounded && Input.GetButtonDown("Jump"))
 		{
 			fallVelocity = jumpForce;
 			playerInput.y = fallVelocity;
 		}
+	}
+	void IsFalling()
+	{
+		if (falling.position.y < -25f)
+			falling.position = new Vector3(0, 40, 0);
 	}
 }
